@@ -1,0 +1,13 @@
+{
+  "name": "qldb-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-qldb": "^3.329.0",
+    "@aws-sdk/client-qldb-session": "^3.329.0",
+    "amazon-qldb-driver-nodejs": "^3.0.1",
+    "ion-js": "^5.0.0",
+    "jsbi": "^4.3.0"
+  }
+}
