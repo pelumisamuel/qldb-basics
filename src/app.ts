@@ -51,10 +51,15 @@ async function main(): Promise<void> {
         console.log('creating index on the first name')
         // await createIndex(txn)
         console.log('Insert document')
-        // await insertDocument(txn)
+        //await insertDocument(txn)
         await updateDocuments(txn)
         console.log('fetch documents')
-        return await fetchDocuments(txn)
+        //return await fetchDocuments(txn)
+        //console.log('fetch documents meta')
+        //return await getDocumentMeta(txn)
+        console.log('get document history')
+
+        return await getDocumentsHistory(txn)
       }
     )
     console.log('this is a people list', JSON.stringify(peopleList, null, 2))
@@ -130,8 +135,9 @@ async function createIndex(txn: TransactionExecutor) {
 // insert a new document
 async function insertDocument(txn: TransactionExecutor): Promise<void> {
   const person: Record<string, any> = {
+    id: `peo-${Date.now()}`,
     firstName: 'John',
-    lastName: 'Doe',
+    lastName: 'Snow',
     age: 42,
   }
   let res = await txn.execute('INSERT INTO People ?', person)
@@ -139,10 +145,10 @@ async function insertDocument(txn: TransactionExecutor): Promise<void> {
 }
 
 async function fetchDocuments(txn: TransactionExecutor): Promise<dom.Value[]> {
-  let firstName = 'John'
+  let firstName = 'snow'
   const result = (
     await txn.execute(
-      'SELECT firstName, age, lastName from People where firstName = ?',
+      'SELECT firstName, age, lastName from People where lastName = ?',
       firstName
     )
   ).getResultList()
@@ -151,10 +157,29 @@ async function fetchDocuments(txn: TransactionExecutor): Promise<dom.Value[]> {
 }
 
 async function updateDocuments(txn: TransactionExecutor): Promise<void> {
-  const lastName = 'Stiles'
+  const lastName = 'Samuel'
+  const identifier: string = 'peo-1683891483510'
   await txn.execute(
-    'UPDATE People SET lastName = ? WHERE firstName = ?',
+    'UPDATE People SET lastName = ? WHERE id = ?',
     lastName,
-    'John'
+    identifier
   )
+}
+async function getDocumentMeta(txn: TransactionExecutor) {
+  const identifier: string = 'peo-1683891483510'
+  return (
+    await txn.execute(
+      'SELECT * FROM _ql_committed_People as r WHERE r.data.id =?',
+      identifier
+    )
+  ).getResultList()
+}
+
+async function getDocumentsHistory(txn: TransactionExecutor) {
+  const identifier = 'IyNY9QYLi8O1s7M8leQTDr'
+  const result = await txn.execute(
+    'SELECT * FROM history(People) as h WHERE h.metadata.id = ?',
+    identifier
+  )
+  return result
 }
